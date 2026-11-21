@@ -1,3 +1,4 @@
+
 name: Upgrade HugoBlox
 
 on:
@@ -9,8 +10,8 @@ on:
         default: 'Stable'
         type: choice
         options:
-        - Stable
-        - Beta (Preview)
+          - Stable
+          - Beta (Preview)
   schedule:
     # Run at 05:00 on Monday
     - cron: '0 5 * * 1'
@@ -28,8 +29,9 @@ jobs:
   upgrade:
     name: Upgrade
     if: github.repository_owner != 'HugoBlox'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -44,7 +46,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          package_json_path: ./package.json
+          package_json_file: ./package.json
           run_install: false
 
       - name: Setup Go
@@ -65,14 +67,13 @@ jobs:
           VERSION_TYPE: ${{ inputs.version_type || 'Stable' }}
         run: |
           FLAGS="--yes --ci"
-          
+
           if [ "$VERSION_TYPE" == "Beta (Preview)" ]; then
             FLAGS="$FLAGS --canary"
           fi
-          
+
           echo "Running upgrade with flags: $FLAGS"
           pnpm dlx hugoblox@latest upgrade $FLAGS
-
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
@@ -82,11 +83,11 @@ jobs:
           title: "⬆️ Upgrade HugoBlox Modules"
           body: |
             This PR upgrades the [HugoBlox](https://hugoblox.com) modules to the latest version.
-            
+
             **Changes:**
             - Updated Hugo Modules (go.mod/go.sum)
             - Applied automatic migrations (if any)
-            
+
             **Verification:**
             - [ ] Check the Deploy Preview to ensure everything looks correct.
             - [ ] Merge this PR to apply the updates.
